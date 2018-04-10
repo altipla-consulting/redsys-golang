@@ -288,6 +288,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		191,  // Wrong expiration date
 		9051, // Unknown
 		9150, // Unknown
+		9500, // Unknown
 	}
 	switch {
 	case params.Response == 9915:

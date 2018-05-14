@@ -286,6 +286,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		184,  // Error with the owner authentication
 		190,  // Denied without any explanation
 		191,  // Wrong expiration date
+		290,  // Unknown
 		909,  // Internal system error
 		9051, // Unknown
 		9126, // Unknown

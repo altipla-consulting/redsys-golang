@@ -290,6 +290,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		909,  // Internal system error
 		9051, // Unknown
 		9126, // Unknown
+		9142, // Unknown
 		9150, // Unknown
 		9500, // Unknown
 	}

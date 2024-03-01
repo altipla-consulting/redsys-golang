@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/altipla-consulting/redsys-golang.svg)](https://pkg.go.dev/github.com/altipla-consulting/redsys-golang)
 
-Redsys integration for golang.
+Redsys integration for Go.
 
 
 ## Install

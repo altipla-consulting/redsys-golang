@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/altipla-consulting/collections"
-	"github.com/juju/errors"
+	"github.com/altipla-consulting/errors"
 	"golang.org/x/net/context"
 )
 
@@ -147,11 +147,11 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 		MerchantName:    merchant.Name,
 		Data:            session.Data,
 	}
-	paramsJson, err := json.Marshal(params)
+	paramsJSON, err := json.Marshal(params)
 	if err != nil {
 		return Signed{}, errors.Trace(err)
 	}
-	paramsStr := base64.StdEncoding.EncodeToString(paramsJson)
+	paramsStr := base64.StdEncoding.EncodeToString(paramsJSON)
 
 	signature, err := sign(merchant.Secret, params.Order, paramsStr)
 	if err != nil {
@@ -331,6 +331,6 @@ func sign(secret, order, content string) ([]byte, error) {
 	mode.CryptBlocks(key, []byte(fmt.Sprintf("%s\x00\x00\x00\x00", order)))
 
 	mac := hmac.New(sha256.New, key)
-	mac.Write([]byte(content))
+	_, _ = mac.Write([]byte(content))
 	return mac.Sum(nil), nil
 }

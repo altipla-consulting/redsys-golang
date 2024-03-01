@@ -1,29 +1,21 @@
-
 # redsys-golang
 
-[![GoDoc](https://godoc.org/github.com/altipla-consulting/redsys-golang?status.svg)](https://godoc.org/github.com/altipla-consulting/redsys-golang)
+[![Go Reference](https://pkg.go.dev/badge/github.com/altipla-consulting/redsys-golang.svg)](https://pkg.go.dev/github.com/altipla-consulting/redsys-golang)
 
-> Redsys integration for golang
+Redsys integration for Go.
 
 
-### Install
+## Install
 
 ```shell
 go get github.com/altipla-consulting/redsys-golang
 ```
 
-This library has the following external dependencies outside the Go standard library:
+## Contributing
 
-* github.com/juju/errors
-* github.com/altipla-consulting/collections
-* golang.org/x/net/context
+You can make pull requests or create issues in GitHub. Any code you send should be formatted using `make gofmt`.
 
 
-### Contributing
-
-You can make pull requests or create issues in GitHub. Any code you send should be formatted using ```gofmt```.
-
-
-### License
+## License
 
 [MIT License](LICENSE)

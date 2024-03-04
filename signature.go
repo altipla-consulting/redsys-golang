@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"slices"
 	"strconv"
 	"time"
@@ -243,13 +242,10 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		ResponseCode: params.Response,
 	}
 
-	dateTime, err := url.QueryUnescape(params.Date + " " + params.Time)
+	dt := params.Date + " " + params.Time
+	operation.Sent, err = time.Parse(`"2021/11/24 08:00"`, dt)
 	if err != nil {
-		return Operation{}, fmt.Errorf("cannot unescape datetime %q: %v", params.Date+" "+params.Time, err)
-	}
-	operation.Sent, err = time.Parse("2021/11/24 08:00", dateTime)
-	if err != nil {
-		return Operation{}, fmt.Errorf("cannot parse datetime %q: %v", dateTime, err)
+		return Operation{}, fmt.Errorf("failed to parse datetime %q: %v", dt, err)
 	}
 
 	badData := []int64{

@@ -1,6 +1,7 @@
 package tpv
 
 import (
+	"context"
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/hmac"
@@ -9,13 +10,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/altipla-consulting/collections"
-	"github.com/altipla-consulting/errors"
-	"golang.org/x/net/context"
 )
 
 const (
@@ -149,13 +147,13 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 	}
 	paramsJSON, err := json.Marshal(params)
 	if err != nil {
-		return Signed{}, errors.Trace(err)
+		return Signed{}, fmt.Errorf("cannot marshalling params: %v", err)
 	}
 	paramsStr := base64.StdEncoding.EncodeToString(paramsJSON)
 
 	signature, err := sign(merchant.Secret, params.Order, paramsStr)
 	if err != nil {
-		return Signed{}, errors.Trace(err)
+		return Signed{}, fmt.Errorf("cannot sign params: %v", err)
 	}
 	signed := Signed{
 		Signature:        base64.StdEncoding.EncodeToString(signature),
@@ -203,20 +201,20 @@ type Params struct {
 
 func ParseParams(signed Signed) (Params, error) {
 	if signed.SignatureVersion != "HMAC_SHA256_V1" {
-		return Params{}, errors.Errorf("unknown signature version: %s", signed.SignatureVersion)
+		return Params{}, fmt.Errorf("unknown signature version: %s", signed.SignatureVersion)
 	}
 	decoded, err := base64.StdEncoding.DecodeString(signed.Params)
 	if err != nil {
-		return Params{}, errors.Trace(err)
+		return Params{}, fmt.Errorf("cannot decode params: %v", err)
 	}
 	params := Params{}
 	if err = json.Unmarshal(decoded, &params); err != nil {
-		return Params{}, errors.Trace(err)
+		return Params{}, fmt.Errorf("cannot unmarshal params: %v", err)
 	}
 	if params.RawResponse != "" {
 		params.Response, err = strconv.ParseInt(params.RawResponse, 10, 64)
 		if err != nil {
-			return Params{}, errors.Trace(err)
+			return Params{}, fmt.Errorf("cannot parse response: %v", err)
 		}
 	}
 	return params, nil
@@ -225,20 +223,20 @@ func ParseParams(signed Signed) (Params, error) {
 func Confirm(ctx context.Context, secret string, signed Signed) (Operation, error) {
 	params, err := ParseParams(signed)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse params: %v", err)
 	}
 
 	signature, err := sign(secret, params.Order, signed.Params)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot sign params: %v", err)
 	}
 
 	decodedSignature, err := base64.URLEncoding.DecodeString(signed.Signature)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot decode signature: %v", err)
 	}
 	if !hmac.Equal(signature, decodedSignature) {
-		return Operation{}, errors.Errorf("bad signature, expected: %s", base64.URLEncoding.EncodeToString(signature))
+		return Operation{}, fmt.Errorf("bad signature, expected: %s", base64.URLEncoding.EncodeToString(signature))
 	}
 
 	operation := Operation{
@@ -248,33 +246,33 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 
 	opDate, err := url.QueryUnescape(params.Date)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot unescape date: %v", err)
 	}
 	dateParts := strings.Split(opDate, "/")
 	day, err := strconv.ParseInt(dateParts[0], 10, 64)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse day: %v", err)
 	}
 	month, err := strconv.ParseInt(dateParts[1], 10, 64)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse month: %v", err)
 	}
 	year, err := strconv.ParseInt(dateParts[2], 10, 64)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse year: %v", err)
 	}
 	opTime, err := url.QueryUnescape(params.Time)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot unescape time: %v", err)
 	}
 	timeParts := strings.Split(opTime, ":")
 	hours, err := strconv.ParseInt(timeParts[0], 10, 64)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse hours: %v", err)
 	}
 	minutes, err := strconv.ParseInt(timeParts[1], 10, 64)
 	if err != nil {
-		return Operation{}, errors.Trace(err)
+		return Operation{}, fmt.Errorf("cannot parse minutes: %v", err)
 	}
 	operation.Sent = time.Date(int(year), time.Month(month), int(day), int(hours), int(minutes), 0, 0, time.UTC)
 
@@ -303,7 +301,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 	case params.Response == 913:
 		operation.Status = StatusRepeated
 
-	case collections.HasInt64(badData, params.Response):
+	case slices.Contains(badData, params.Response):
 		operation.Status = StatusCancelled
 
 	case params.Response >= 0 && params.Response <= 99:
@@ -317,11 +315,11 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 func sign(secret, order, content string) ([]byte, error) {
 	decodedSecret, err := base64.StdEncoding.DecodeString(secret)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, fmt.Errorf("cannot decode secret: %v", err)
 	}
 	block, err := des.NewTripleDESCipher(decodedSecret)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return nil, fmt.Errorf("cannot create cipher: %v", err)
 	}
 
 	// Zeros IV obtained from the official implementation in PHP.

@@ -256,15 +256,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		184,  // Error with the owner authentication
 		190,  // Denied without any explanation
 		191,  // Wrong expiration date
-		290,  // Unknown
-		909,  // Internal system error
-		9029, // To review how the message is being assembled
-		9051, // Repeated order number
-		9104, // Trade with "secure headline" and headline without secure purchase key
-		9126, // Duplicate operation
 		9142, // Excess time for payment
-		9150, // Unknown
-		9500, // Error in the Dynamic DCC, the card has been modified.
 	}
 	switch {
 	case params.Response == 9915:

@@ -250,11 +250,9 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 
 	badData := []int64{
 		101,  // Expired card
-		118,  // Unknown
 		129,  // Wrong CVV
 		180,  // Alien card service
 		184,  // Error with the owner authentication
-		190,  // Denied without any explanation
 		191,  // Wrong expiration date
 		9142, // Excess time for payment
 	}

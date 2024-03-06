@@ -243,7 +243,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 	}
 
 	dt := params.Date + " " + params.Time
-	operation.Sent, err = time.Parse(`"2021/11/24 08:00"`, dt)
+	operation.Sent, err = time.Parse("02/01/2006 15:04", dt)
 	if err != nil {
 		return Operation{}, fmt.Errorf("failed to parse datetime %q: %v", dt, err)
 	}

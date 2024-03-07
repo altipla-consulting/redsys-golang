@@ -1,4 +1,4 @@
-module redsys-golang
+module github.com/altipla-consulting/redsys-golang
 
 go 1.21.4
 

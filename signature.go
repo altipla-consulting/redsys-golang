@@ -58,7 +58,7 @@ type Merchant struct {
 // Session data
 type Session struct {
 	// Code of the session. It should have 4 digits and 8 characters.
-	Code string
+	Order string
 
 	// Two-letters code of the language. Use English if unknown, please.
 	Lang Lang
@@ -133,7 +133,7 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 		TransactionType: TransactionTypeSimpleAuthorization,
 		Amount:          session.Amount,
 		Currency:        CurrencyEuros,
-		Order:           session.Code,
+		Order:           session.Order,
 		MerchantURL:     merchant.URLNotification,
 		Product:         session.Product,
 		Client:          session.Client,

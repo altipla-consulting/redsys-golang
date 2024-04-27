@@ -19,7 +19,7 @@ func TestSignProductionTPVTransactions(t *testing.T) {
 		Debug:           true,
 	}
 	session := Session{
-		Code:    "code",
+		Order:   "code",
 		Lang:    LangES,
 		Client:  "Name",
 		Amount:  12912,
@@ -67,7 +67,7 @@ func TestSign(t *testing.T) {
 		URLNotification: "https://notify-url.com",
 	}
 	session := Session{
-		Code:    "code",
+		Order:   "code",
 		Lang:    LangES,
 		Client:  "Name",
 		Amount:  12912,
@@ -84,8 +84,8 @@ func TestSignRetried(t *testing.T) {
 		Secret: "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
 	}
 	session := Session{
-		Code: "foo-code-bar",
-		Lang: LangES,
+		Order: "foo-code-bar",
+		Lang:  LangES,
 	}
 	signed, err := Sign(context.Background(), merchant, session)
 	require.NoError(t, err)
@@ -104,7 +104,7 @@ func TestSignCutsLongNames(t *testing.T) {
 		Secret: "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
 	}
 	session := Session{
-		Code:   "foo-code-bar",
+		Order:  "foo-code-bar",
 		Lang:   LangES,
 		Client: "123456789012345678901234567890123456789012345678901234567890 more than 60 chars",
 	}

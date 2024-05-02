@@ -245,7 +245,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 
 	dt, err := url.QueryUnescape(fmt.Sprintf("%s %s", params.Date, params.Time))
 	if err != nil {
-		return Operation{}, fmt.Errorf("cannot unescape datetime: %v", err)
+		return Operation{}, fmt.Errorf("cannot unescape datetime %q %q: %v", params.Date, params.Time, err)
 	}
 	operation.Sent, err = time.Parse("02/01/2006 15:04", dt)
 	if err != nil {

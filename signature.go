@@ -217,11 +217,10 @@ func ParseParams(signed Signed) (Params, error) {
 		}
 	}
 
-	data, err := url.QueryUnescape(params.Data)
+	params.Data, err = url.QueryUnescape(params.Data)
 	if err != nil {
 		return Params{}, fmt.Errorf("cannot unescape data %q: %v", params.Data, err)
 	}
-	params.Data = data
 
 	return params, nil
 }

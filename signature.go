@@ -216,6 +216,12 @@ func ParseParams(signed Signed) (Params, error) {
 			return Params{}, fmt.Errorf("cannot parse response %q: %v", params.RawResponse, err)
 		}
 	}
+
+	params.Data, err = url.QueryUnescape(params.Data)
+	if err != nil {
+		return Params{}, fmt.Errorf("cannot unescape data %q: %v", params.Data, err)
+	}
+
 	return params, nil
 }
 

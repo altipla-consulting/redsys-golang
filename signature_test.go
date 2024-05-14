@@ -19,7 +19,7 @@ func TestSignProductionTPVTransactions(t *testing.T) {
 		Debug:           true,
 	}
 	session := Session{
-		Order:   "code",
+		Order:   "00011234abcd",
 		Lang:    LangES,
 		Client:  "Name",
 		Amount:  12912,
@@ -33,7 +33,7 @@ func TestSignProductionTPVTransactions(t *testing.T) {
 	require.Equal(t, signed.Endpoint, EndpointDebug)
 
 	require.Equal(t, signed.SignatureVersion, "HMAC_SHA256_V1")
-	require.Equal(t, signed.Signature, "jhW+7AYJylFdKnRyiufBdAWZaKbmu9ywAcOwKYkJtvM=")
+	require.Equal(t, signed.Signature, "SadUCDZ7izbxAA2yE1dBqO7UodQOHmNrsgEGkx9bWxQ=")
 
 	decoded, err := base64.StdEncoding.DecodeString(signed.Params)
 	require.NoError(t, err)
@@ -43,7 +43,7 @@ func TestSignProductionTPVTransactions(t *testing.T) {
 
 	require.Equal(t, params, map[string]interface{}{
 		"Ds_Merchant_TransactionType":    float64(0),
-		"Ds_Merchant_Order":              "code",
+		"Ds_Merchant_Order":              "00011234abcd",
 		"Ds_Merchant_MerchantURL":        "https://notify-url.com",
 		"Ds_Merchant_ConsumerLanguage":   "001",
 		"Ds_Merchant_UrlOK":              "https://url-ok.com",
@@ -67,7 +67,7 @@ func TestSign(t *testing.T) {
 		URLNotification: "https://notify-url.com",
 	}
 	session := Session{
-		Order:   "code",
+		Order:   "00011234abcd",
 		Lang:    LangES,
 		Client:  "Name",
 		Amount:  12912,
@@ -84,7 +84,7 @@ func TestSignRetried(t *testing.T) {
 		Secret: "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
 	}
 	session := Session{
-		Order: "foo-code-bar",
+		Order: "00011234abcd",
 		Lang:  LangES,
 	}
 	signed, err := Sign(context.Background(), merchant, session)
@@ -96,7 +96,16 @@ func TestSignRetried(t *testing.T) {
 	err = json.Unmarshal(decoded, &params)
 	require.NoError(t, err)
 
-	require.Equal(t, params["Ds_Merchant_Order"], "foo-code-bar")
+	require.Equal(t, params["Ds_Merchant_Order"], "00011234abcd")
+}
+
+func TestSignInvalidOrder(t *testing.T) {
+	merchant := Merchant{}
+	session := Session{
+		Order: "0001",
+	}
+	_, err := Sign(context.Background(), merchant, session)
+	require.EqualError(t, err, "invalid order format: 0001")
 }
 
 func TestSignCutsLongNames(t *testing.T) {
@@ -104,7 +113,7 @@ func TestSignCutsLongNames(t *testing.T) {
 		Secret: "sq7HjrUOBfKmC576ILgskD5srU870gJ7",
 	}
 	session := Session{
-		Order:  "foo-code-bar",
+		Order:  "00011234abcd",
 		Lang:   LangES,
 		Client: "123456789012345678901234567890123456789012345678901234567890 more than 60 chars",
 	}

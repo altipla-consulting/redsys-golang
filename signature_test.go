@@ -105,7 +105,7 @@ func TestSignInvalidOrder(t *testing.T) {
 		Order: "0001",
 	}
 	_, err := Sign(context.Background(), merchant, session)
-	require.EqualError(t, err, "invalid order format: 0001")
+	require.EqualError(t, err, `invalid order format "0001"`)
 }
 
 func TestSignCutsLongNames(t *testing.T) {

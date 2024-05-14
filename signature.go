@@ -21,6 +21,9 @@ const (
 	EndpointDebug      = "https://sis-t.redsys.es:25443/sis/realizarPago"
 )
 
+// Order validation regex.
+var OrderValidation = regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
+
 // Signed TPV transaction to send to the bank.
 type Signed struct {
 	// Signature of the parameters.
@@ -125,14 +128,9 @@ type tpvRequest struct {
 	Data            string          `json:"Ds_Merchant_MerchantData,omitempty"`
 }
 
-func isValidOrder(order string) bool {
-	re := regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
-	return re.MatchString(order)
-}
-
 func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, error) {
-	if !isValidOrder(session.Order) {
-		return Signed{}, fmt.Errorf("invalid order format: %s", session.Order)
+	if !OrderValidation.MatchString(session.Order) {
+		return Signed{}, fmt.Errorf("invalid order format %q", session.Order)
 	}
 	if len(session.Client) > 59 {
 		session.Client = session.Client[:59]

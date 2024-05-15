@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"regexp"
 	"slices"
 	"strconv"
 	"time"
@@ -124,7 +125,12 @@ type tpvRequest struct {
 	Data            string          `json:"Ds_Merchant_MerchantData,omitempty"`
 }
 
+var orderValidation = regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
+
 func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, error) {
+	if !orderValidation.MatchString(session.Order) {
+		return Signed{}, fmt.Errorf("invalid order format %q", session.Order)
+	}
 	if len(session.Client) > 59 {
 		session.Client = session.Client[:59]
 	}

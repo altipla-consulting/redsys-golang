@@ -141,7 +141,6 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 		Amount:          session.Amount,
 		Currency:        CurrencyEuros,
 		Order:           session.Order,
-		MerchantURL:     merchant.URLNotification,
 		Product:         session.Product,
 		Client:          session.Client,
 		Lang:            session.Lang,
@@ -150,6 +149,22 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 		MerchantName:    merchant.Name,
 		Data:            session.Data,
 	}
+	urlNotification, err := url.QueryUnescape(merchant.URLNotification)
+	if err != nil {
+		return Signed{}, fmt.Errorf("cannot unescape url notification %q: %v", merchant.URLNotification, err)
+	}
+	params.MerchantURL = urlNotification
+	urlOK, err := url.QueryUnescape(session.URLOK)
+	if err != nil {
+		return Signed{}, fmt.Errorf("cannot unescape urlok notification %q: %v", session.URLOK, err)
+	}
+	params.URLOK = urlOK
+	urlKO, err := url.QueryUnescape(session.URLKO)
+	if err != nil {
+		return Signed{}, fmt.Errorf("cannot unescape urlko notification %q: %v", session.URLKO, err)
+	}
+	params.URLKO = urlKO
+
 	paramsJSON, err := json.Marshal(params)
 	if err != nil {
 		return Signed{}, fmt.Errorf("cannot marshal params: %v", err)

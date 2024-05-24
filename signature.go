@@ -285,7 +285,9 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9142, // Excess time for payment
 	}
 	switch {
-	case params.Response == 9915:
+	// 9915 cancelled by the user.
+	// 9673 Bizum cancellation.
+	case params.Response == 9915 || params.Response == 9673:
 		operation.Status = StatusCancelled
 
 	case params.Response == 913:

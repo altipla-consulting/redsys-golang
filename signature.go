@@ -82,6 +82,8 @@ type Session struct {
 
 	// Raw data that will be sent back in the confirmation.
 	Data string
+
+	PaymentMethod PaymentMethod
 }
 
 type TransactionType int64
@@ -108,6 +110,14 @@ const (
 	LangPT = Lang("009")
 )
 
+type PaymentMethod string
+
+const (
+	PaymentMethodCreditCard = PaymentMethod("C")
+	PaymentMethodBizum      = PaymentMethod("z")
+	PaymentMethodPaypal     = PaymentMethod("P")
+)
+
 type tpvRequest struct {
 	MerchantCode    string          `json:"Ds_Merchant_MerchantCode"`
 	Terminal        int64           `json:"Ds_Merchant_Terminal"`
@@ -123,6 +133,7 @@ type tpvRequest struct {
 	URLKO           string          `json:"Ds_Merchant_UrlKO"`
 	MerchantName    string          `json:"Ds_Merchant_MerchantName"`
 	Data            string          `json:"Ds_Merchant_MerchantData,omitempty"`
+	PaymentMethod   PaymentMethod   `json:"Ds_Merchant_PayMethods,omitempty"`
 }
 
 var orderValidation = regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
@@ -149,6 +160,7 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 		URLKO:           session.URLKO,
 		MerchantName:    merchant.Name,
 		Data:            session.Data,
+		PaymentMethod:   session.PaymentMethod,
 	}
 	paramsJSON, err := json.Marshal(params)
 	if err != nil {

@@ -15,13 +15,13 @@ go get github.com/altipla-consulting/redsys-golang
 
 Follow this steps to integrate with Redsys:
 
-1. First and foremost you will need the bank credentials that should be requested in person at your entity. The will provide you with access to the test environment and with the following important information:
+1. First and foremost you will need to request the bank credentials in person at your entity. The will provide you with access to the test environment along with the following important information:
 
     - Merchant code.
     - Terminal number.
     - A signing key.
 
-2. Sign the payment server side with this library:
+2. Sign the payment server-side with this library:
 
     ```go
     sess := redsys.Session{
@@ -48,7 +48,7 @@ Follow this steps to integrate with Redsys:
     }
     ```
 
-3. Send from the browser a form to the bank. It is important to send it client side, it can't be a POST request from Go.
+3. Send a form from the browser to the bank. It is important to send it client-side; it can't be a POST request from Go. Sending the form will redirect the user to the bank to make the payment.
 
     You can prepare a HTML form:
 
@@ -93,9 +93,9 @@ Follow this steps to integrate with Redsys:
     form.submit()
     ```
 
-4. The user will pay, cancel, verify its credit card, etc. inside the bank page. When the transaction finishes (successfully or not) a background notification will be sent automatically to the configured endpoint. In parallel the user will return to the OK/KO page. Both requests will have parameters in the query string that we can read.
+4. The user will complete the transaction, cancel, verify its credit card, etc. on the bank page. When the transaction finishes (successfully or not), a background notification will be sent automatically to the configured endpoint. In parallel, the user will be redirected to the OK/KO page. Both requests will have parameters in the query string that can be read.
 
-5. Verify the received parameters. Anyone can send requests to public pages so you need to be completely sure the bank has signed the data and everything is legal and secure. Use our library to verify the parameters:
+5. Verify the received parameters. Since anyone can send requests to public pages, you need to ensure the bank has signed the data and everything is legal and secure. Use our library to verify the parameters:
 
     ```go
     signed := redsys.Signed{
@@ -109,7 +109,7 @@ Follow this steps to integrate with Redsys:
     }    
     ```
 
-6. Use the `operation` variable to show messages to the user, approve the transaction and anything necessary according to its status and data.
+6. Use the `operation` variable to show messages to the user, approve the transaction and perform any necessary actions according to its status and data.
 
 
 ## Contributing

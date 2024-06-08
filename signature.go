@@ -148,9 +148,6 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 	if len(session.Client) > 59 {
 		session.Client = session.Client[:59]
 	}
-	if session.PaymentMethod == "" {
-		session.PaymentMethod = PaymentMethodCreditCard
-	}
 
 	params := tpvRequest{
 		MerchantCode:    merchant.Code,

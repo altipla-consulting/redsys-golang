@@ -23,25 +23,25 @@ const (
 
 // Signed TPV transaction to send to the bank.
 type Signed struct {
-	// Signature of the parameters.
+	// Signature of the parameters. Assign to Ds_Signature.
 	Signature string
 
-	// Version of the signature.
+	// Version of the signature. Assign to Ds_SignatureVersion.
 	SignatureVersion string
 
-	// Params to send.
+	// Params to send. Assign to Ds_MerchantParameters.
 	Params string
 
-	// Output only. It will return the endpoint of the call.
+	// Output only. It will return the endpoint of the call where the info should be sent.
 	Endpoint string
 }
 
-// Merchant data
+// Merchant data provided by the bank itself during the integration.
 type Merchant struct {
 	// Merchant code assigned by the bank.
 	Code string
 
-	// Merchant name to show in the receipt.
+	// Merchant name to show in the receipt. You can freely use any appropiate name.
 	Name string
 
 	// Terminal number assigned by the bank.
@@ -50,22 +50,22 @@ type Merchant struct {
 	// Secret to sign transactions assigned by the bank.
 	Secret string
 
-	// URL where the notification will be sent.
+	// URL where the asynchronous background notification will be sent.
 	URLNotification string
 
-	// Enable debug endpoint.
+	// Send the data to the test endpoint of the bank.
 	Debug bool
 }
 
-// Session data
+// Session data that changes for each payment the merchant wants to make.
 type Session struct {
-	// Code of the session. It should have 4 digits and 8 characters.
+	// Code of the session. It should have 4 digits and 8 characters. It should be unique for each retry of the payment.
 	Order string
 
-	// Two-letters code of the language. Use English if unknown, please.
+	// Language code. Use English if unknown.
 	Lang Lang
 
-	// Name of the client to show in the receipt.
+	// Name of the client to show in the receipt. Use any appropiate info available.
 	Client string
 
 	// Amount in cents to pay.
@@ -74,15 +74,17 @@ type Session struct {
 	// Product name to show in the receipt.
 	Product string
 
-	// URL to return to when the transaction is approved.
+	// URL to return the user to when the transaction is approved.
 	URLOK string
 
-	// URL to return to when the transaction is cancelled.
+	// URL to return the user to when the transaction is cancelled.
 	URLKO string
 
-	// Raw data that will be sent back in the confirmation.
+	// Raw custom data that will be sent back in the confirmation when the transaction finishes. You can use it to store
+	// identifiers or any other data that facilitates the verification afterwards.
 	Data string
 
+	// Payment method to use. By default it will be credit card if empty.
 	PaymentMethod PaymentMethod
 }
 
@@ -136,15 +138,20 @@ type tpvRequest struct {
 	PaymentMethod   PaymentMethod   `json:"Ds_Merchant_PayMethods,omitempty"`
 }
 
-var orderValidation = regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
+var reOrder = regexp.MustCompile(`^[0-9]{4}[0-9A-Za-z]{8}$`)
 
+// Sign takes all the input data and returns the parameters to be sent to the bank.
 func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, error) {
-	if !orderValidation.MatchString(session.Order) {
+	if !reOrder.MatchString(session.Order) {
 		return Signed{}, fmt.Errorf("invalid order format %q", session.Order)
 	}
 	if len(session.Client) > 59 {
 		session.Client = session.Client[:59]
 	}
+	if session.PaymentMethod == "" {
+		session.PaymentMethod = PaymentMethodCreditCard
+	}
+
 	params := tpvRequest{
 		MerchantCode:    merchant.Code,
 		Terminal:        merchant.Terminal,
@@ -184,38 +191,38 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 	return signed, nil
 }
 
-type Status string
-
-const (
-	StatusUnknown   = Status("")
-	StatusApproved  = Status("approved")
-	StatusCancelled = Status("cancelled")
-	StatusRepeated  = Status("repeated")
-)
-
-type Operation struct {
-	Status       Status
-	Sent         time.Time
-	Params       Params
-	IsCreditCard bool
-
-	// Raw response code of the bank.
-	ResponseCode int64
-}
-
+// Parsed parameters of the transaction.
 type Params struct {
-	Response int64  `json:"-"`
-	Order    string `json:"Ds_Order"`
-	Date     string `json:"Ds_Date"`
-	Time     string `json:"Ds_Hour"`
-	Country  string `json:"Ds_Card_Country"`
-	AuthCode string `json:"Ds_AuthorisationCode"`
-	CardType string `json:"Ds_Card_Type"`
-	Data     string `json:"Ds_MerchantData"`
+	// Response code of the bank.
+	Response int64 `json:"-"`
 
+	// Order code of the transaction.
+	Order string `json:"Ds_Order"`
+
+	// Original order code as a string that sometimes comes back empty.
 	RawResponse string `json:"Ds_Response"`
+
+	// Date of the transaction in the format "02/01/2006".
+	Date string `json:"Ds_Date"`
+
+	// Hour of the transaction in the format "15:04".
+	Time string `json:"Ds_Hour"`
+
+	// Country code of the card.
+	Country string `json:"Ds_Card_Country"`
+
+	// Authorization code of the card. Should be stored to have a reference to the transaction.
+	AuthCode string `json:"Ds_AuthorisationCode"`
+
+	// Card type: MasterCard, Visa, etc.
+	CardType string `json:"Ds_Card_Type"`
+
+	// Custom data previously sent that comes back in the confirmation.
+	Data string `json:"Ds_MerchantData"`
 }
 
+// ParseParams reads the response from the bank and returns the parsed parameters if the signature is valid. If an error
+// is returned the input data is compromised and should not be used, the returned params will also be empty.
 func ParseParams(signed Signed) (Params, error) {
 	if signed.SignatureVersion != "HMAC_SHA256_V1" {
 		return Params{}, fmt.Errorf("unknown signature version: %s", signed.SignatureVersion)
@@ -243,6 +250,45 @@ func ParseParams(signed Signed) (Params, error) {
 	return params, nil
 }
 
+// Status of a finished transaction.
+type Status string
+
+const (
+	// StatusUnknown means the transaction has not been correctly signed.
+	StatusUnknown = Status("")
+
+	// StatusApproved means the transaction was approved by the bank and the money was transferred.
+	StatusApproved = Status("approved")
+
+	// StatusCancelled means the transaction was cancelled by the user.
+	StatusCancelled = Status("cancelled")
+
+	// StatusRepeated means the transaction has been sent repeatedly to the bank. It is a programming error that should
+	// not happen if a different Order code is used for each retry.
+	StatusRepeated = Status("repeated")
+)
+
+// Operation represents the result of a payment operation.
+type Operation struct {
+	// Status of the operation.
+	Status Status
+
+	// Sent date of the operation.
+	Sent time.Time
+
+	// All the parsed parameters of the transaction.
+	Params Params
+
+	// True if the transaction was a credit card payment.
+	IsCreditCard bool
+
+	// Raw response code of the bank.
+	ResponseCode int64
+}
+
+// Confirm reads the response from the bank and parses the response to determine the status of the transaction in a more
+// easy to use way. If an error is returned the input data is compromised and should not be used, the returned operation
+// will also be empty.
 func Confirm(ctx context.Context, secret string, signed Signed) (Operation, error) {
 	params, err := ParseParams(signed)
 	if err != nil {

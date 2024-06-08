@@ -20,6 +20,10 @@ Follow this steps to integrate with Redsys:
     - Merchant code.
     - Terminal number.
     - A signing key.
+    
+    In the test environment, you will have access to PDFs describing the integration process we are preparing. We recommend reading these documents thoroughly to understand how the different methods work.
+
+    You can also read this more concise documentation: https://pagosonline.redsys.es/conexion-redireccion.html
 
 2. Sign the payment server-side with this library:
 

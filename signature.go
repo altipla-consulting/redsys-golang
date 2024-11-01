@@ -324,6 +324,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		104,  // Transaction not permitted with this type of card.
 		129,  // Wrong CVV
 		180,  // Alien card service
+		190,  // Denied without any specific reason.
 		184,  // Error with the owner authentication
 		191,  // Wrong expiration date
 		9142, // Excess time for payment

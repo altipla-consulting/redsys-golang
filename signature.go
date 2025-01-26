@@ -328,13 +328,11 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		184,  // Error with the owner authentication
 		191,  // Wrong expiration date
 		9142, // Excess time for payment
+		9673, // Bizum cancellation.
+		9754, // Card has not enabled PSD2 in the bank.
+		9915, // Cancelled by the user.
 	}
 	switch {
-	// 9915 cancelled by the user.
-	// 9673 Bizum cancellation.
-	case params.Response == 9915 || params.Response == 9673:
-		operation.Status = StatusCancelled
-
 	case params.Response == 913:
 		operation.Status = StatusRepeated
 

@@ -129,6 +129,19 @@ func TestSignCutsLongNames(t *testing.T) {
 	require.Equal(t, params["Ds_Merchant_Titular"], "12345678901234567890123456789012345678901234567890123456789")
 }
 
+func TestSignBase64Secret(t *testing.T) {
+	merchant := Merchant{
+		Secret: "aqsY7A9EnU5k8VpuBeUJ6+k8VpuBeUJ6",
+	}
+	session := Session{
+		Order: "00011234abcd",
+	}
+	signed, err := Sign(context.Background(), merchant, session)
+	require.NoError(t, err)
+
+	require.Equal(t, signed.Signature, "UYFq5QTfcR33hKIOASWFgZ1r5Y7qSCnU7stK418_U6Y=")
+}
+
 func TestSignatureVersionUnknown(t *testing.T) {
 	_, err := ParseParams(Signed{SignatureVersion: "foo"})
 	require.EqualError(t, err, "unknown signature version: foo")

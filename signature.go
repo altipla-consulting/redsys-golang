@@ -348,7 +348,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 }
 
 func sign(secret, order, content string) ([]byte, error) {
-	decodedSecret, err := base64.URLEncoding.DecodeString(secret)
+	decodedSecret, err := base64.StdEncoding.DecodeString(secret)
 	if err != nil {
 		return nil, fmt.Errorf("cannot decode secret: %v", err)
 	}

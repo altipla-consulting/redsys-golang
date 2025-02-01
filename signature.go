@@ -170,14 +170,14 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 	if err != nil {
 		return Signed{}, fmt.Errorf("cannot marshal params: %v", err)
 	}
-	paramsStr := base64.StdEncoding.EncodeToString(paramsJSON)
+	paramsStr := base64.URLEncoding.EncodeToString(paramsJSON)
 
 	signature, err := sign(merchant.Secret, params.Order, paramsStr)
 	if err != nil {
 		return Signed{}, fmt.Errorf("%v", err)
 	}
 	signed := Signed{
-		Signature:        base64.StdEncoding.EncodeToString(signature),
+		Signature:        base64.URLEncoding.EncodeToString(signature),
 		SignatureVersion: "HMAC_SHA256_V1",
 		Params:           paramsStr,
 		Endpoint:         EndpointProduction,
@@ -224,7 +224,7 @@ func ParseParams(signed Signed) (Params, error) {
 	if signed.SignatureVersion != "HMAC_SHA256_V1" {
 		return Params{}, fmt.Errorf("unknown signature version: %s", signed.SignatureVersion)
 	}
-	decoded, err := base64.StdEncoding.DecodeString(signed.Params)
+	decoded, err := base64.URLEncoding.DecodeString(signed.Params)
 	if err != nil {
 		return Params{}, fmt.Errorf("cannot decode params: %v", err)
 	}
@@ -348,7 +348,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 }
 
 func sign(secret, order, content string) ([]byte, error) {
-	decodedSecret, err := base64.StdEncoding.DecodeString(secret)
+	decodedSecret, err := base64.URLEncoding.DecodeString(secret)
 	if err != nil {
 		return nil, fmt.Errorf("cannot decode secret: %v", err)
 	}

@@ -213,3 +213,15 @@ func TestConfirm(t *testing.T) {
 	require.EqualValues(t, operation.Sent.Hour(), 8)
 	require.EqualValues(t, operation.Sent.Minute(), 0)
 }
+
+func TestConfirmNonUTF78Transaction(t *testing.T) {
+	signed := Signed{
+		Signature:        "N-bnNeLTkBzngmE-LUtQzO7j22fmNzjFY_7mVeD9ek0=",
+		SignatureVersion: "HMAC_SHA256_V1",
+		Params:           "eyJEc19EYXRlIjoiMDElMkYwMiUyRjIwMjUiLCJEc19Ib3VyIjoiMDklM0EyMiIsIkRzX1NlY3VyZVBheW1lbnQiOiIwIiwiRHNfQW1vdW50IjoiMjY1ODgiLCJEc19DdXJyZW5jeSI6Ijk3OCIsIkRzX09yZGVyIjoiMDAwMDI0OGQ2MjA2IiwiRHNfTWVyY2hhbnRDb2RlIjoiNjY0NTI4NjMiLCJEc19UZXJtaW5hbCI6IjAwMSIsIkRzX1Jlc3BvbnNlIjoiOTYwMSIsIkRzX1RyYW5zYWN0aW9uVHlwZSI6IjAiLCJEc19NZXJjaGFudERhdGEiOiJwcm9qZWN0cyUyRmdhcmElMkZzZXNzaW9ucyUyRmNmMWQ3NzhmLTcwOWMtNDlkOC1hOTU2LWI0ODVhOTJmMWY4MSUyRm9yZGVycyUyRjAwMDAyNDhkNjIwNiIsIkRzX0F1dGhvcmlzYXRpb25Db2RlIjoiKysrKysrIiwiRHNfQ29uc3VtZXJMYW5ndWFnZSI6IjEiLCJEc19DYXJkX0NvdW50cnkiOiI3MjQiLCJEc19FTVYzRFMiOnsiY2FyZGhvbGRlckluZm8iOiJDb25zdWx0ZSBjb24gbGEgZW50aWRhZCBiYW5jYXJpYSBzaSBzdSB0YXJqZXRhIGVzdMOvwr_CvSBhY3RpdmFkYSBwYXJhIHJlYWxpemFyIG9wZXJhY2lvbmVzIGNvbiBhdXRlbnRpY2FjacOvwr_CvW4uIn19",
+	}
+	params, err := ParseParams(signed)
+	require.NoError(t, err)
+
+	require.EqualValues(t, params.Response, 9601)
+}

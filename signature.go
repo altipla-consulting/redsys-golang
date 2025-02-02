@@ -251,7 +251,8 @@ func ParseParams(signed Signed) (Params, error) {
 type Status string
 
 const (
-	// StatusUnknown means the transaction has not been correctly signed.
+	// StatusUnknown means the transaction has not been correctly detected. You can error out as a cancellation
+	// or as an error depending on the context.
 	StatusUnknown = Status("")
 
 	// StatusApproved means the transaction was approved by the bank and the money was transferred.
@@ -319,7 +320,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		return Operation{}, fmt.Errorf("failed to parse datetime %q: %v", dt, err)
 	}
 
-	badData := []int64{
+	cancelled := []int64{
 		101,  // Expired card
 		104,  // Transaction not permitted with this type of card.
 		129,  // Wrong CVV
@@ -333,10 +334,10 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9915, // Cancelled by the user.
 	}
 	switch {
-	case params.Response == 913:
+	case params.Response == 913 || params.Response == 9051:
 		operation.Status = StatusRepeated
 
-	case slices.Contains(badData, params.Response):
+	case slices.Contains(cancelled, params.Response):
 		operation.Status = StatusCancelled
 
 	case params.Response >= 0 && params.Response <= 99:

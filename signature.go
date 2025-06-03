@@ -86,12 +86,16 @@ type Session struct {
 
 	// Payment method to use. By default it will be credit card if empty.
 	PaymentMethod PaymentMethod
+
+	// Transaction type to use. By default it will be simple authorization.
+	TransactionType TransactionType
 }
 
 type TransactionType int64
 
 const (
 	TransactionTypeSimpleAuthorization = TransactionType(0)
+	TransactionTypePreAuthorization    = TransactionType(1)
 )
 
 type Currency int64
@@ -152,7 +156,7 @@ func Sign(ctx context.Context, merchant Merchant, session Session) (Signed, erro
 	params := tpvRequest{
 		MerchantCode:    merchant.Code,
 		Terminal:        merchant.Terminal,
-		TransactionType: TransactionTypeSimpleAuthorization,
+		TransactionType: session.TransactionType,
 		Amount:          session.Amount,
 		Currency:        CurrencyEuros,
 		Order:           session.Order,

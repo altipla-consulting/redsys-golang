@@ -336,6 +336,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9673, // Bizum cancellation.
 		9754, // Card has not enabled PSD2 in the bank.
 		9915, // Cancelled by the user.
+		9590, // EMV3DS authentication operation rejected, error when dismantling the CRes response.
 	}
 	switch {
 	case params.Response == 913 || params.Response == 9051:

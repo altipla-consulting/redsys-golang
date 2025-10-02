@@ -325,14 +325,15 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 	}
 
 	cancelled := []int64{
-		101,  // Expired card
+		101,  // Expired card.
 		104,  // Transaction not permitted with this type of card.
-		129,  // Wrong CVV
-		180,  // Alien card service
+		129,  // Wrong CVV.
+		180,  // Alien card service.
 		190,  // Denied without any specific reason.
-		184,  // Error with the owner authentication
-		191,  // Wrong expiration date
-		9142, // Excess time for payment
+		184,  // Error with the owner authentication.
+		191,  // Wrong expiration date.
+		9142, // Excess time for payment.
+		9221, // The customer is not typing the CVV2.
 		9673, // Bizum cancellation.
 		9754, // Card has not enabled PSD2 in the bank.
 		9915, // Cancelled by the user.

@@ -334,6 +334,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		191,  // Wrong expiration date.
 		9142, // Excess time for payment.
 		9221, // The customer is not typing the CVV2.
+		9602, // Error in the 3DSecure v2 authentication process.
 		9673, // Bizum cancellation.
 		9754, // Card has not enabled PSD2 in the bank.
 		9915, // Cancelled by the user.

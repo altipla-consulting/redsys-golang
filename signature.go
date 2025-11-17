@@ -325,22 +325,23 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 	}
 
 	cancelled := []int64{
-		101,  // Expired card.
-		104,  // Transaction not permitted with this type of card.
-		129,  // Wrong CVV.
-		180,  // Alien card service.
-		190,  // Denied without any specific reason.
-		184,  // Error with the owner authentication.
-		191,  // Wrong expiration date.
-		9142, // Excess time for payment.
-		9221, // The customer is not typing the CVV2.
-		9593, // Error in EMV3DS authentication.
-		9602, // Error in the 3DSecure v2 authentication process.
-		9673, // Bizum cancellation.
-		9754, // Card has not enabled PSD2 in the bank.
-		9915, // Cancelled by the user.
-		9589, // EMV3DS authentication operation rejected, response without CRes.
-		9590, // EMV3DS authentication operation rejected, error when dismantling the CRes response.
+		101,  // Tarjeta caducada, no reintentar la operación.
+		104,  // Operación no permitida para esa tarjeta, consulte con la entidad emisora de la misma.
+		129,  // Código de seguridad (CVV2/CVC2) incorrecto.
+		180,  // Tarjeta ajena al servicio.
+		190,  // Denegación del emisor sin especificar motivo.
+		184,  // Error en la autenticación del titular.
+		191,  // Fecha de caducidad errónea.
+		9142, // Tiempo excecido para el pago.
+		9221, // El CVV2 es obligatorio.
+		9593, // Error en la operacion de autenticacion EMV3DS,el transStatus de la consulta final de la operación no está definido.
+		9602, // Error en el proceso de autenticación 3DSecure v2 – Respuesta Areq U.
+		9673, // Operación cancelada. El usuario no desea seguir.
+		9754, // La tarjeta no permite autenticación en versión 2.
+		9915, // A petición del usuario se ha cancelado el pago.
+		9589, // Operacion de autenticacion EMV3DS rechazada, respuesta sin CRes.
+		9590, // Operacion de autenticacion EMV3DS rechazada, error al desmontar la respuesta CRes.
+		9601, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq R.
 	}
 	switch {
 	case params.Response == 913 || params.Response == 9051:

@@ -332,6 +332,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		190,  // Denegación del emisor sin especificar motivo.
 		184,  // Error en la autenticación del titular.
 		191,  // Fecha de caducidad errónea.
+		9080, // Error genérico. Consulte con Soporte.
 		9142, // Tiempo excecido para el pago.
 		9221, // El CVV2 es obligatorio.
 		9593, // Error en la operacion de autenticacion EMV3DS,el transStatus de la consulta final de la operación no está definido.

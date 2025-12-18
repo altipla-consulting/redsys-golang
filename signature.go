@@ -336,6 +336,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9142, // Tiempo excecido para el pago.
 		9221, // El CVV2 es obligatorio.
 		9593, // Error en la operacion de autenticacion EMV3DS,el transStatus de la consulta final de la operación no está definido.
+		9599, // Error en la operacion de autenticacion EMV3DS.
 		9602, // Error en el proceso de autenticación 3DSecure v2 – Respuesta Areq U.
 		9673, // Operación cancelada. El usuario no desea seguir.
 		9754, // La tarjeta no permite autenticación en versión 2.

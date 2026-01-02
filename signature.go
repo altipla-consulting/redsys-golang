@@ -343,6 +343,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9915, // A petición del usuario se ha cancelado el pago.
 		9589, // Operacion de autenticacion EMV3DS rechazada, respuesta sin CRes.
 		9590, // Operacion de autenticacion EMV3DS rechazada, error al desmontar la respuesta CRes.
+		9600, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq N.
 		9601, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq R.
 	}
 	switch {

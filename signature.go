@@ -328,6 +328,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		101,  // Tarjeta caducada, no reintentar la operación.
 		104,  // Operación no permitida para esa tarjeta, consulte con la entidad emisora de la misma.
 		129,  // Código de seguridad (CVV2/CVC2) incorrecto.
+		172,  // Denegada, no repetir.
 		180,  // Tarjeta ajena al servicio.
 		190,  // Denegación del emisor sin especificar motivo.
 		184,  // Error en la autenticación del titular.

@@ -330,12 +330,14 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		104,  // Operación no permitida para esa tarjeta, consulte con la entidad emisora de la misma.
 		106,  // Intentos de PIN excedidos.
 		118,  // Tarjeta no registrada, no reintentar la operación.
+		125,  // Tarjeta no efectiva, no reintentar la operación.
 		129,  // Código de seguridad (CVV2/CVC2) incorrecto.
 		172,  // Denegada, no repetir.
 		180,  // Tarjeta ajena al servicio.
 		190,  // Denegación del emisor sin especificar motivo.
 		184,  // Error en la autenticación del titular.
 		191,  // Fecha de caducidad errónea.
+		912,  // Emisor no disponible.
 		9080, // Error genérico. Consulte con Soporte.
 		9104, // Comercio con “titular seguro” y titular sin clave de compra segura.
 		9142, // Tiempo excecido para el pago.
@@ -351,6 +353,8 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9590, // Operacion de autenticacion EMV3DS rechazada, error al desmontar la respuesta CRes.
 		9600, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq N.
 		9601, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq R.
+		9885, // Error, operación rechazada por existir otra con la misma tarjeta en los últimos 30 días denegada con código que no permite repetirla.
+
 	}
 	switch {
 	case params.Response == 913 || params.Response == 9051:

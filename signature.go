@@ -330,6 +330,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		104,  // Operación no permitida para esa tarjeta, consulte con la entidad emisora de la misma.
 		106,  // Intentos de PIN excedidos.
 		118,  // Tarjeta no registrada, no reintentar la operación.
+		121,  // Excede el límite de la transacción, consulte con la entidad emisora de la tarjeta.
 		123,  // Error en la autenticación del titular, consulte con la entidad emisora de la tarjeta.
 		125,  // Tarjeta no efectiva, no reintentar la operación.
 		129,  // Código de seguridad (CVV2/CVC2) incorrecto.

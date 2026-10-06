@@ -356,6 +356,7 @@ func Confirm(ctx context.Context, secret string, signed Signed) (Operation, erro
 		9600, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq N.
 		9601, // El banco emisor indica que no es posible autenticar la tarjeta – Respuesta Areq R.
 		9885, // Error, operación rechazada por existir otra con la misma tarjeta en los últimos 30 días denegada con código que no permite repetirla.
+		9997, // Se está procesando otra transacción en SIS con la misma tarjeta.
 
 	}
 	switch {
